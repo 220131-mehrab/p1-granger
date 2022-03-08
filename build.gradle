@@ -2,6 +2,10 @@ plugins {
     id 'application'
 }
 
+application {
+    mainClass = 'com.revature.fruitreview.App'
+}
+
 group 'org.example'
 version '1.0-SNAPSHOT'
 
@@ -12,6 +16,7 @@ repositories {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    implementation 'org.apache.tomcat.embed:tomcat-embed-core:10.1.0-M11'
 }
 
 test {
