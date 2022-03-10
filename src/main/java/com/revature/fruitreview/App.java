@@ -6,8 +6,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class App {
     public static void main(String[] args) {
@@ -17,7 +19,10 @@ public class App {
         server.addServlet("", "defaultServlet", new HttpServlet() {
             @Override
             protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-                resp.getWriter().println("Hello");
+                String filename = req.getPathInfo();
+                String resourceDir = "static";
+                InputStream file = getClass().getClassLoader().getResourceAsStream(resourceDir+filename);
+                IOUtils.copy(file, resp.getOutputStream());
             }
         }).addMapping("/*");
         try {
