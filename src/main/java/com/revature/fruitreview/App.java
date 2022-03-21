@@ -25,17 +25,6 @@ public class App {
         String username = "sa";
         String password = "";
         Connection connection = DriverManager.getConnection(url + ";INIT=runscript from 'classpath:schema.sql'", username, password);
-        
-        ResultSet results = connection.prepareStatement("SELECT * FROM fruitreviews").executeQuery();
-        ArrayList<FruitRating> fruitList = new ArrayList<>();
-        while(results.next()) {
-            FruitRating review = new FruitRating();
-            review.setId(results.getInt("ReviewId"));
-            review.setFruitName(results.getString("FruitName"));
-            review.setRating(results.getInt("Rating"));
-            review.setReview(results.getString("Review"));
-            fruitList.add(review);
-        }
 
         ObjectMapper mapper = new ObjectMapper();
 
@@ -51,7 +40,22 @@ public class App {
             @Override
             protected void doGet(HttpServletRequest req, HttpServletResponse resp)
                     throws ServletException, IOException {
-                resp.getWriter().println(mapper.writeValueAsString(fruitList));
+                ResultSet results;
+                try {
+                    results = connection.prepareStatement("SELECT * FROM fruitreviews").executeQuery();
+                    ArrayList<FruitRating> fruitList = new ArrayList<>();
+                    while(results.next()) {
+                        FruitRating review = new FruitRating();
+                        review.setReviewId(results.getInt("ReviewId"));
+                        review.setFruitName(results.getString("FruitName"));
+                        review.setRating(results.getInt("Rating"));
+                        review.setReview(results.getString("Review"));
+                        fruitList.add(review);
+                    }
+                    resp.getWriter().println(mapper.writeValueAsString(fruitList));
+                } catch (SQLException e) {
+                    System.err.println("Failed to get from DB"+e.getMessage());
+                }
             }
 
             @Override
@@ -59,12 +63,13 @@ public class App {
                     throws ServletException, IOException {
                 FruitRating fruitRating = mapper.readValue(req.getInputStream(), FruitRating.class);
                 try {
-                    PreparedStatement statement = connection.prepareStatement("INSERT INTO fruitreviews(?, ?, ?, ?)");
-                    statement.setInt(1, fruitRating.getId());
+                    PreparedStatement statement = connection.prepareStatement("INSERT INTO fruitreviews VALUES (?, ?, ?, ?);");
+                    statement.setInt(1, fruitRating.getReviewId());
                     statement.setString(2, fruitRating.getFruitName());
                     statement.setInt(3, fruitRating.getRating());
                     statement.setString(4, fruitRating.getReview());
-                    statement.executeQuery();
+                    statement.executeUpdate();
+                    System.out.println("Inserted to DB"+fruitRating);
                 } catch (SQLException e) {
                     System.err.println("Failed to insert" + e.getMessage());
                 }
