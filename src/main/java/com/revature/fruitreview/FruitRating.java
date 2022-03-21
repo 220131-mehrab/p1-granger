@@ -1,6 +1,7 @@
 package com.revature.fruitreview;
 
 public class FruitRating {
+    private int id;
     private String fruitName;
     private int rating;
     private String review;
@@ -8,7 +9,8 @@ public class FruitRating {
     public FruitRating() {
     }
 
-    public FruitRating(String fruitName, int rating, String review) {
+    public FruitRating(int id, String fruitName, int rating, String review) {
+        this.id = id;
         this.fruitName = fruitName;
         this.rating = rating;
         this.review = review;
@@ -36,5 +38,18 @@ public class FruitRating {
 
     public void setFruitName(String fruitName) {
         this.fruitName = fruitName;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return ("Review [id=" + id) + ", fruitName=" + fruitName + ", rating=" + rating + ", review=" + review + "]";
     }
 }
