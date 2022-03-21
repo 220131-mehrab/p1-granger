@@ -3,6 +3,7 @@ package com.revature.fruitreview;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -24,8 +25,8 @@ public class App {
         String username = "sa";
         String password = "";
         Connection connection = DriverManager.getConnection(url + ";INIT=runscript from 'classpath:schema.sql'", username, password);
+        
         ResultSet results = connection.prepareStatement("SELECT * FROM fruitreviews").executeQuery();
-
         ArrayList<FruitRating> fruitList = new ArrayList<>();
         while(results.next()) {
             FruitRating review = new FruitRating();
@@ -51,6 +52,22 @@ public class App {
             protected void doGet(HttpServletRequest req, HttpServletResponse resp)
                     throws ServletException, IOException {
                 resp.getWriter().println(mapper.writeValueAsString(fruitList));
+            }
+
+            @Override
+            protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+                    throws ServletException, IOException {
+                FruitRating fruitRating = mapper.readValue(req.getInputStream(), FruitRating.class);
+                try {
+                    PreparedStatement statement = connection.prepareStatement("INSERT INTO fruitreviews(?, ?, ?, ?)");
+                    statement.setInt(1, fruitRating.getId());
+                    statement.setString(2, fruitRating.getFruitName());
+                    statement.setInt(3, fruitRating.getRating());
+                    statement.setString(4, fruitRating.getReview());
+                    statement.executeQuery();
+                } catch (SQLException e) {
+                    System.err.println("Failed to insert" + e.getMessage());
+                }
             }
             
         }).addMapping("/fruit");
